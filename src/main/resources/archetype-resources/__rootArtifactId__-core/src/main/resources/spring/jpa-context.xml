@@ -1,0 +1,71 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <jpa:repositories base-package="${package}.repository"/>
+
+    <context:property-placeholder location="classpath*:database.properties"
+                                  ignore-resource-not-found="true" ignore-unresolvable="true" />
+
+    <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+        <property name="driverClass" value="${symbol_dollar}{db.driver}" />
+        <property name="jdbcUrl" value="${symbol_dollar}{db.url}" />
+        <property name="username" value="${symbol_dollar}{db.username}"/>
+        <property name="password" value="${symbol_dollar}{db.password}"/>
+
+        <property name="maxConnectionsPerPartition" value="${symbol_dollar}{db.maxConnectionsPerPartition}"/>
+        <property name="minConnectionsPerPartition" value="${symbol_dollar}{db.minConnectionsPerPartition}"/>
+        <property name="partitionCount" value="${symbol_dollar}{db.partitionCount}"/>
+
+        <property name="connectionTestStatement" value="${symbol_dollar}{db.connectionTestStatement}" />
+        <property name="idleConnectionTestPeriodInSeconds" value="${symbol_dollar}{db.idleConnectionTestPeriodInSeconds}" />
+        <property name="statementsCacheSize" value="${symbol_dollar}{db.statementsCacheSize}"/>
+    </bean>
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="jpaDialect">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+        </property>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="showSql" value="${symbol_dollar}{hibernate.show_sql}" />
+            </bean>
+        </property>
+        <property name="packagesToScan" value="${symbol_dollar}{entitymanager.packages.to.scan}" />
+        <property name="jpaProperties" ref="jpaProperties" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <util:map id="jpaProperties">
+        <entry key="hibernate.hbm2ddl.auto" value="${symbol_dollar}{hibernate.hbm2ddl.auto}"/>
+        <entry key="hibernate.dialect" value="${symbol_dollar}{hibernate.dialect}"/>
+        <entry key="hibernate.show_sql" value="${symbol_dollar}{hibernate.show_sql}"/>
+        <entry key="hibernate.enable_lazy_load_no_trans" value="${symbol_dollar}{hibernate.enable_lazy_load_no_trans}"/>
+        <entry key="hibernate.cache.use_second_level_cache" value="${symbol_dollar}{hibernate.cache.use_second_level_cache}"/>
+        <entry key="hibernate.cache.use_query_cache" value="${symbol_dollar}{hibernate.cache.use_query_cache}"/>
+        <entry key="hibernate.format_sql" value="${symbol_dollar}{hibernate.format_sql}"/>
+        <entry key="hibernate.ejb.naming_strategy" value="${symbol_dollar}{hibernate.ejb.naming_strategy}"/>
+        <entry key="hibernate.cache.region.factory_class" value="${symbol_dollar}{hibernate.cache.region.factory_class}"/>
+        <entry key="jadira.usertype.autoRegisterUserTypes" value="${symbol_dollar}{jadira.usertype.autoRegisterUserTypes}" />
+        <entry key="jadira.usertype.databaseZone" value="${symbol_dollar}{jadira.usertype.databaseZone}" />
+        <entry key="jadira.usertype.javaZone" value="${symbol_dollar}{jadira.usertype.javaZone}" />
+    </util:map>
+
+    <!-- Configure the transaction manager bean -->
+    <bean id="transactionManager"
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <!-- Enable @Transactional annotations -->
+    <tx:annotation-driven/>
+
+</beans>
