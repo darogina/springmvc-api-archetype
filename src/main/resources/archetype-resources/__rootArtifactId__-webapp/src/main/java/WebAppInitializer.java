@@ -1,11 +1,13 @@
 #set( $symbol_pound = '#' )
-#set( $symbol_dollar = '$' )
-#set( $symbol_escape = '\' )
-package ${package};
+        #set( $symbol_dollar = '$' )
+        #set( $symbol_escape = '\' )
+        package ${package};
 
+import ${package}.config.ServletConfig;
 import org.h2.server.web.WebServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -20,15 +22,8 @@ public class WebAppInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        XmlWebApplicationContext appContext = new XmlWebApplicationContext();
-        appContext.setConfigLocation("/WEB-INF/spring/servlet/webmvc-config.xml");
-
-        ServletRegistration.Dynamic dispatcher = servletContext.addServlet("appServlet", new DispatcherServlet(appContext));
-        dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping("/");
-
-        servletContext.addListener(ContextLoaderListener.class);
-        servletContext.setInitParameter("contextConfigLocation", "classpath:applicationContext.xml");
+        registerListener(servletContext);
+        registerDispatcherServlet(servletContext);
 
         FilterRegistration charEncodingfilterReg = servletContext.addFilter("CharacterEncodingFilter", CharacterEncodingFilter.class);
         charEncodingfilterReg.setInitParameter("encoding", "UTF-8");
@@ -39,5 +34,27 @@ public class WebAppInitializer implements WebApplicationInitializer {
         ServletRegistration.Dynamic h2Servlet = servletContext.addServlet("h2console", WebServlet.class);
         h2Servlet.setLoadOnStartup(2);
         h2Servlet.addMapping("/console/database/*");
+    }
+
+    private void registerDispatcherServlet(ServletContext servletContext) {
+        AnnotationConfigWebApplicationContext dispatcherContext = createContext(ServletConfig.class);
+
+        ServletRegistration.Dynamic dispatcher = servletContext.addServlet("appServlet", new DispatcherServlet(dispatcherContext));
+        dispatcher.setLoadOnStartup(1);
+        dispatcher.addMapping("/");
+    }
+
+
+    private void registerListener(ServletContext servletContext) {
+        XmlWebApplicationContext applicationContext = new XmlWebApplicationContext();
+        applicationContext.setConfigLocation("classpath:applicationContext.xml");
+
+        servletContext.addListener(new ContextLoaderListener(applicationContext));
+    }
+
+    private AnnotationConfigWebApplicationContext createContext(final Class<?>... annotatedClasses) {
+        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.register(annotatedClasses);
+        return context;
     }
 }

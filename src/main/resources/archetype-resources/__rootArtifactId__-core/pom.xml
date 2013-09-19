@@ -62,6 +62,12 @@
             <artifactId>spring-data-jpa</artifactId>
         </dependency>
 
+        <!-- Spring Hateoas -->
+        <dependency>
+            <groupId>org.springframework.hateoas</groupId>
+            <artifactId>spring-hateoas</artifactId>
+        </dependency>
+
         <!-- Hibernate -->
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -188,5 +194,14 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -14,6 +14,8 @@
         <spring.version>3.2.4.RELEASE</spring.version>
         <spring.data.version>1.5.2.RELEASE</spring.data.version>
         <spring.data.jpa.version>1.3.4.RELEASE</spring.data.jpa.version>
+        <spring.hateoas.version>0.8.0.RELEASE</spring.hateoas.version>
+        <spring.plugin.version>0.8.0.RELEASE</spring.plugin.version>
         <hibernate.version>4.2.3.Final</hibernate.version>
         <ehcache.version>2.6.6</ehcache.version>
         <h2database.version>1.3.173</h2database.version>
@@ -31,14 +33,14 @@
         <jadira.usertype.version>3.1.0.CR8</jadira.usertype.version>
         <jodah.typetools.version>0.3.0</jodah.typetools.version>
         <javax.inject.version>1</javax.inject.version>
-        <thymeleaf.version>2.0.17</thymeleaf.version>
-        <swagger4spring-web.version>0.2.0</swagger4spring-web.version>
         <guava.version>14.0.1</guava.version>
         <modelmapper.version>0.6.1</modelmapper.version>
 
         <!--Build Properties-->
-        <jetty.version>8.1.10.v20130312</jetty.version>
+        <jetty.version>9.0.5.v20130815</jetty.version>
         <jetty.port>8080</jetty.port>
+        <jetty.stop.key>foo</jetty.stop.key>
+        <jetty.scanIntervalSeconds>10</jetty.scanIntervalSeconds>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -95,23 +97,36 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>${spring.data.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>
 
-            <!-- Spring Data JPA -->
+            <!-- Spring Data -->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>${spring.data.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-jpa</artifactId>
                 <version>${spring.data.jpa.version}</version>
+            </dependency>
+
+            <!-- Spring Hateoas -->
+            <dependency>
+                <groupId>org.springframework.hateoas</groupId>
+                <artifactId>spring-hateoas</artifactId>
+                <version>${spring.hateoas.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.plugin</groupId>
+                <artifactId>spring-plugin-core</artifactId>
+                <version>${spring.plugin.version}</version>
             </dependency>
 
             <!-- Hibernate -->
@@ -227,27 +242,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.thymeleaf</groupId>
-                <artifactId>thymeleaf</artifactId>
-                <version>${thymeleaf.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.thymeleaf</groupId>
-                <artifactId>thymeleaf-spring3</artifactId>
-                <version>${thymeleaf.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.knappsack</groupId>
-                <artifactId>swagger4spring-web</artifactId>
-                <version>${swagger4spring-web.version}</version>
             </dependency>
 
             <!--ModelMapper-->
@@ -342,34 +339,68 @@
     </dependencyManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.5.1</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <attachClasses>true</attachClasses>
+                        <failOnMissingWebXml>false</failOnMissingWebXml>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.15</version>
+                    <configuration>
+                        <parallel>methods</parallel>
+                        <threadCount>5</threadCount>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.6</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>${jetty.version}</version>
+                    <configuration>
+                        <scanIntervalSeconds>${jetty.scanIntervalSeconds}</scanIntervalSeconds>
+                        <stopKey>${jetty.stop.key}</stopKey>
+                        <stopPort>${jetty.port}</stopPort>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
-
 </project>

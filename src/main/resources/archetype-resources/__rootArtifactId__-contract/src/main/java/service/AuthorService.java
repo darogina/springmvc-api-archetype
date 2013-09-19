@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${package}.service;
 
-import ${package}.entity.SampleEntity;
+import ${package}.entity.AuthorEntity;
 
-public interface SampleService extends CrudService<SampleEntity, Long> {
+public interface AuthorService extends CrudService<AuthorEntity, Long> {
 }

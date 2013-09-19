@@ -3,10 +3,9 @@
 #set( $symbol_escape = '\' )
 package ${package}.controller;
 
+import ${package}.assembler.api.ResourceAssembler;
 import ${package}.entity.BaseEntity;
 import ${package}.exception.NotFoundException;
-import ${package}.exception.NotImplementedException;
-import ${package}.model.api.ApiModel;
 import ${package}.service.CrudService;
 import org.jodah.typetools.TypeResolver;
 import org.modelmapper.ModelMapper;
@@ -15,16 +14,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ServiceBasedRestController<T, ID extends Serializable, S extends CrudService> implements
+public abstract class ServiceBasedRestController<T, ID extends Serializable, S extends CrudService, R extends ResourceAssembler> implements
         RestController<T, ID> {
 
     Class<T> resourceClass;
@@ -32,8 +29,10 @@ public abstract class ServiceBasedRestController<T, ID extends Serializable, S e
     Class<S> serviceClass;
     protected ModelMapper modelMapper;
     protected S service;
+    protected R resourceAssembler;
 
-    public abstract void setService(S service);
+    protected abstract void setService(S service);
+    protected abstract void setResourceAssembler(R resourceAssembler);
 
     @Override
     public T create(@RequestBody T resource) {
@@ -92,7 +91,7 @@ public abstract class ServiceBasedRestController<T, ID extends Serializable, S e
             returnValues.add(mapEntityToResourceClass((BaseEntity) element));
         }
 
-        return new PageImpl<T>(returnValues, pageRequest, unmappedPage.getTotalElements());
+        return new PageImpl<>(returnValues, pageRequest, unmappedPage.getTotalElements());
     }
 
     @Override
@@ -118,7 +117,7 @@ public abstract class ServiceBasedRestController<T, ID extends Serializable, S e
     }
 
     protected T mapEntityToResourceClass(BaseEntity entity) {
-        return entity == null ? null : modelMapper.map(entity, resourceClass);
+        return (T) resourceAssembler.toResource(entity);
     }
 
     @PostConstruct
@@ -130,5 +129,5 @@ public abstract class ServiceBasedRestController<T, ID extends Serializable, S e
         this.serviceClass = (Class<S>) typeArguments[2];
     }
 
-    public abstract BaseEntity toEntity(T model);
+    protected abstract BaseEntity toEntity(T model);
 }

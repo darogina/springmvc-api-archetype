@@ -4,6 +4,7 @@
 package ${package};
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import com.test.test.config.ServletConfig;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         DbUnitTestExecutionListener.class })
 @ContextHierarchy({
         @ContextConfiguration("classpath*:test-applicationContext.xml"),
-        @ContextConfiguration("classpath*:webmvc-config-test.xml")
+        @ContextConfiguration(classes = {ServletConfig.class})
 })
 @TransactionConfiguration(defaultRollback = true)
 public abstract class AbstractWebTests {

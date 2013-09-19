@@ -17,6 +17,8 @@
     <context:property-placeholder
             location="classpath:test-database.properties" ignore-unresolvable="true" order="-1"/>
 
+    <context:component-scan base-package="${package}.assembler" />
+
     <import resource="classpath*:/spring/jpa-context.xml"/>
 
     <import resource="classpath*:/spring/services-context.xml"/>
