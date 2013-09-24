@@ -4,7 +4,7 @@
 package ${package};
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.test.test.config.ServletConfig;
+import ${package}.config.ServletConfig;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
