@@ -43,6 +43,7 @@
         <jetty.scanIntervalSeconds>10</jetty.scanIntervalSeconds>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    	<jdk.version>1.7</jdk.version>
     </properties>
 
     <dependencyManagement>
@@ -347,8 +348,8 @@
                     <version>2.5.1</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
                     </configuration>
                 </plugin>
                 <plugin>
